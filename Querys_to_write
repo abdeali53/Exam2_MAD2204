@@ -110,12 +110,64 @@ INSERT INTO Package VALUES(5, 1, 'Undeclared', 100.0, 5, 1);
 Create all select queries as VIEW Object and name it as v1...vn
 
 Q1) Display employess who name is "Turanga Leela" along with its shipment dertails.
+Ans) Select p.PackageNumber,s.Shipmentdate, p.Contents,p.Weight,
+snd.Name as Sender,rep.Name as Recipient, emp.Name
+from Package p left join Shipment s 
+on s.ShipmentId =p.ShipmentId 
+left join Client snd on snd.AccountNumber=p.Sender
+left join Client rep on rep.AccountNumber=p.Recipient
+right join Employee emp on emp.EmployeeId=s.Manager 
+where emp.Name ='Turanga Leela';
+
 Q2) List those packages which are intented for client whose ids are 1,5 or 6
+Ans
+Select p.PackageNumber, p.Contents,p.Weight,
+rep.Name as Recipient
+from Package p 
+left join Client rep on rep.AccountNumber=p.Recipient
+where p.Recipient in (1,5,6);
+
 Q3) Display name of emnployee and plant which are cleared
+Ans) Select emp.Name as EmployeeName, pln.Name as PlanetName,pln.Coordinate,cl.Level from has_clearance cl
+left join Employee emp on cl.Employee=emp.EmployeeId
+left join Planet pln on cl.Planet=pln.PlanetId;
+
 Q4) Display details of shipment data (Month, Day YYYY), sender and receiver name whose package weight is between 5 and 10
+Ans)Select p.PackageNumber,
+Concat(MonthName(s.Shipmentdate),', ',Day(s.Shipmentdate), ' ',Year(s.Shipmentdate)) as ShipmentDate,
+p.Contents,p.Weight,
+snd.Name as Sender,rep.Name as Recipient
+from Package p left join Shipment s 
+on s.ShipmentId =p.ShipmentId 
+left join Client snd on snd.AccountNumber=p.Sender
+left join Client rep on rep.AccountNumber=p.Recipient
+where p.weight between 5 and 10;
+
 Q5) Give details of those shipments which are currently processed at plant name "Mars" or "Amazonia"
+Ans)Select p.PackageNumber,s.Shipmentdate, p.Contents,p.Weight,
+snd.Name as Sender,rep.Name as Recipient
+from Package p left join Shipment s 
+on s.ShipmentId =p.ShipmentId 
+left join Client snd on snd.AccountNumber=p.Sender
+left join Client rep on rep.AccountNumber=p.Recipient
+left join Planet pl on pl.PlanetId=s.PlanetId
+where pl.Name = 'Mars' or pl.Name='Amazonia';
+
+
 Q6) List client names whose pakages are "Undeclared"
+Ans)Select distinct rep.AccountNumber,rep.Name as Client
+from Package p 
+left join Client rep on rep.AccountNumber=p.Recipient
+where p.Contents ='Undeclared';
+
 Q7) Display those employees details containing salary format as $2,700.00
+Ans)Select EmployeeId,Name,Position,Format(Salary,0) as Salary, Remarks from Employee;
+
 Q8) Write query to Add remarks of those employee which are never remarked before.
+Ans)Select * from Employee where Remarks is Null;
+
 Q9) Display employee details in following format "Phillip J. Fry is Delivery boy and earns $7,500.00/month"
+Ans)Select Concat (Name,' is ',Position,' and earns $',salary ,'/month') Details from Employee;
+
 Q10) Update shipment date to current date for all data having NULL value
+Ans)Update Shipment set ShipmentDate=Current_Date() where ShipmentDate is NULL;
