@@ -171,3 +171,190 @@ Ans)Select Concat (Name,' is ',Position,' and earns $',salary ,'/month') Details
 
 Q10) Update shipment date to current date for all data having NULL value
 Ans)Update Shipment set ShipmentDate=Current_Date() where ShipmentDate is NULL;
+
+
+
+---------------------------------------With View and Output--------------------------------------------
+
+ Create View v1 as Select p.PackageNumber,s.Shipmentdate, p.Contents,p.Weight,
+    -> snd.Name as Sender,rep.Name as Recipient, emp.Name
+    ->
+    -> from Package p left join Shipment s
+    -> on s.ShipmentId =p.ShipmentId
+    -> left join Client snd on snd.AccountNumber=p.Sender
+    -> left join Client rep on rep.AccountNumber=p.Recipient
+    -> right join Employee emp on emp.EmployeeId=s.Manager
+    ->
+    -> where emp.Name ='Turanga Leela';
+Query OK, 0 rows affected (0.05 sec)
+
+MariaDB [mytestdb]> Select * from v1;
++---------------+--------------+------------+--------+----------------+---------------+---------------+
+| PackageNumber | Shipmentdate | Contents   | Weight | Sender         | Recipient     | Name          |
++---------------+--------------+------------+--------+----------------+---------------+---------------+
+|             3 | NULL         | Undeclared |      7 | Al Gore's Head | Barbados Slim | Turanga Leela |
++---------------+--------------+------------+--------+----------------+---------------+---------------+
+1 row in set (0.02 sec)
+
+
+
+ create VIEW v2 as Select p.PackageNumber, p.Contents,p.Weight,
+    -> rep.Name as Recipient
+    ->
+    -> from Package p
+    -> left join Client rep on rep.AccountNumber=p.Recipient
+    -> where p.Recipient in (1,5,6);
+Query OK, 0 rows affected (0.03 sec)
+
+MariaDB [mytestdb]> select * from V2;
++---------------+------------+--------+----------------+
+| PackageNumber | Contents   | Weight | Recipient      |
++---------------+------------+--------+----------------+
+|             4 | Undeclared |      5 | Leo Wong       |
+|             5 | Undeclared |    100 | Zapp Brannigan |
+|             3 | Undeclared |      3 | Zapp Brannigan |
++---------------+------------+--------+----------------+
+3 rows in set (0.00 sec)
+
+
+ Create View v3 as Select emp.Name, pln.Name,pln.Coordinate,cl.Level from has_clearance cl
+    -> left join Employee emp on cl.Employee=emp.EmployeeId
+    -> left join Planet pln on cl.Planet=pln.PlanetId;
+ERROR 1060 (42S21): Duplicate column name 'Name'
+MariaDB [mytestdb]> Create View v3 as Select emp.Name as EmployeeName, pln.Name as PlanetName,pln.Coordinate,cl.Level from has_clearance cl
+    -> left join Employee emp on cl.Employee=emp.EmployeeId
+    -> left join Planet pln on cl.Planet=pln.PlanetId
+    -> ;
+Query OK, 0 rows affected (0.05 sec)
+
+MariaDB [mytestdb]> select * from v3;
++--------------------------+------------------+------------------+-------+
+| EmployeeName             | PlanetName       | Coordinate       | Level |
++--------------------------+------------------+------------------+-------+
+| Phillip J. Fry           | Omicron Persei 8 |    89475345.3545 |     2 |
+| Phillip J. Fry           | Decapod X        | 65498463216.3466 |     3 |
+| Turanga Leela            | Mars             |   32435021.65468 |     2 |
+| Turanga Leela            | Omega III        |    98432121.5464 |     4 |
+| Bender Bending Rodriguez | Tarantulon VI    | 849842198.354654 |     2 |
+| Bender Bending Rodriguez | Cannibalon       |  654321987.21654 |     4 |
+| Hubert J. Farnsworth     | DogDoo VII       |  65498721354.688 |     1 |
++--------------------------+------------------+------------------+-------+
+7 rows in set (0.00 sec)
+
+
+ Create View v4 as Select p.PackageNumber,
+    -> Concat(MonthName(s.Shipmentdate),', ',Day(s.Shipmentdate), ' ',Year(s.Shipmentdate)) as ShipmentDate,
+    -> p.Contents,p.Weight,
+    -> snd.Name as Sender,rep.Name as Recipient
+    -> from Package p left join Shipment s
+    -> on s.ShipmentId =p.ShipmentId
+    -> left join Client snd on snd.AccountNumber=p.Sender
+    -> left join Client rep on rep.AccountNumber=p.Recipient
+    -> where p.weight between 5 and 10;
+Query OK, 0 rows affected (0.06 sec)
+
+MariaDB [mytestdb]> Select * from v4;
++---------------+--------------+------------+--------+-----------------+---------------+
+| PackageNumber | ShipmentDate | Contents   | Weight | Sender          | Recipient     |
++---------------+--------------+------------+--------+-----------------+---------------+
+|             2 | May, 11 3004 | Undeclared |     10 | Al Gore's Head  | Barbados Slim |
+|             4 | May, 11 3004 | Undeclared |      5 | Ogden Wernstrom | Leo Wong      |
+|             3 | NULL         | Undeclared |      7 | Al Gore's Head  | Barbados Slim |
++---------------+--------------+------------+--------+-----------------+---------------+
+3 rows in set (0.00 sec)
+
+
+
+create view v5 as Select p.PackageNumber,s.Shipmentdate, p.Contents,p.Weight,
+    -> snd.Name as Sender,rep.Name as Recipient
+    -> from Package p left join Shipment s
+    -> on s.ShipmentId =p.ShipmentId
+    -> left join Client snd on snd.AccountNumber=p.Sender
+    -> left join Client rep on rep.AccountNumber=p.Recipient
+    -> left join Planet pl on pl.PlanetId=s.PlanetId
+    -> where pl.Name = 'Mars' or pl.Name='Amazonia';
+Query OK, 0 rows affected (0.07 sec)
+
+MariaDB [mytestdb]> Select * from v5;
++---------------+--------------+------------+--------+----------------+---------------+
+| PackageNumber | Shipmentdate | Contents   | Weight | Sender         | Recipient     |
++---------------+--------------+------------+--------+----------------+---------------+
+|             3 | 2017-09-18   | Undeclared |      7 | Al Gore's Head | Barbados Slim |
++---------------+--------------+------------+--------+----------------+---------------+
+1 row in set (0.00 sec)
+
+
+Create VIEW v6 as Select distinct rep.AccountNumber,rep.Name as Client
+    -> from Package p 
+    -> left join Client rep on rep.AccountNumber=p.Recipient
+    -> where p.Contents ='Undeclared';
+Query OK, 0 rows affected (0.05 sec)
+
+MariaDB [mytestdb]> Select * from v6;
++---------------+-----------------+
+| AccountNumber | Client          |
++---------------+-----------------+
+|             2 | Al Gore's Head  |
+|             3 | Barbados Slim   |
+|             4 | Ogden Wernstrom |
+|             5 | Leo Wong        |
+|             1 | Zapp Brannigan  |
++---------------+-----------------+
+5 rows in set (0.00 sec)
+
+Create View v7 as Select EmployeeId,Name,Position,Format(Salary,0) as Salary, Remarks from Employee;
+Query OK, 0 rows affected (0.05 sec)
+
+MariaDB [mytestdb]> Select * from v7;
++------------+--------------------------+--------------+--------+----------------------------------------------------+
+| EmployeeId | Name                     | Position     | Salary | Remarks                                            |
++------------+--------------------------+--------------+--------+----------------------------------------------------+
+|          1 | Phillip J. Fry           | Delivery boy | 7,500  | Not to be confused with the Philip J. Fry from Hov |
+|          2 | Turanga Leela            | Captain      | 10,000 | NULL                                               |
+|          3 | Bender Bending Rodriguez | Robot        | 7,500  | NULL                                               |
+|          4 | Hubert J. Farnsworth     | CEO          | 20,000 | NULL                                               |
+|          5 | John A. Zoidberg         | Physician    | 25     | NULL                                               |
+|          6 | Amy Wong                 | Intern       | 5,000  | NULL                                               |
+|          7 | Hermes Conrad            | Bureaucrat   | 10,000 | NULL                                               |
+|          8 | Scruffy Scruffington     | Janitor      | 5,000  | NULL                                               |
++------------+--------------------------+--------------+--------+----------------------------------------------------+
+8 rows in set (0.00 sec)
+
+Create View V8 as Select * from Employee where Remarks is Null;
+Query OK, 0 rows affected (0.05 sec)
+
+MariaDB [mytestdb]> Select * from v8;
++------------+--------------------------+------------+---------+---------+
+| EmployeeId | Name                     | Position   | Salary  | Remarks |
++------------+--------------------------+------------+---------+---------+
+|          2 | Turanga Leela            | Captain    | 10000.0 | NULL    |
+|          3 | Bender Bending Rodriguez | Robot      | 7500.0  | NULL    |
+|          4 | Hubert J. Farnsworth     | CEO        | 20000.0 | NULL    |
+|          5 | John A. Zoidberg         | Physician  | 25.0    | NULL    |
+|          6 | Amy Wong                 | Intern     | 5000.0  | NULL    |
+|          7 | Hermes Conrad            | Bureaucrat | 10000.0 | NULL    |
+|          8 | Scruffy Scruffington     | Janitor    | 5000.0  | NULL    |
++------------+--------------------------+------------+---------+---------+
+7 rows in set (0.00 sec)
+
+ Create View v9 as  Select Concat (Name,' is ',Position,' and earns $',salary ,'/month') Details from Employee;
+Query OK, 0 rows affected (0.02 sec)
+
+MariaDB [mytestdb]> Select * from v9;
++-----------------------------------------------------------+
+| Details                                                   |
++-----------------------------------------------------------+
+| Phillip J. Fry is Delivery boy and earns $7500.0/month    |
+| Turanga Leela is Captain and earns $10000.0/month         |
+| Bender Bending Rodriguez is Robot and earns $7500.0/month |
+| Hubert J. Farnsworth is CEO and earns $20000.0/month      |
+| John A. Zoidberg is Physician and earns $25.0/month       |
+| Amy Wong is Intern and earns $5000.0/month                |
+| Hermes Conrad is Bureaucrat and earns $10000.0/month      |
+| Scruffy Scruffington is Janitor and earns $5000.0/month   |
++-----------------------------------------------------------+
+8 rows in set (0.00 sec)
+
+Update Shipment set ShipmentDate=Current_Date() where ShipmentDate is NULL;
+Query OK, 3 rows affected (0.07 sec)
+Rows matched: 3  Changed: 3  Warnings: 0
