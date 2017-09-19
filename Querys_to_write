@@ -302,7 +302,7 @@ MariaDB [mytestdb]> Select * from v6;
 +---------------+-----------------+
 5 rows in set (0.00 sec)
 
-Create View v7 as Select EmployeeId,Name,Position,Format(Salary,0) as Salary, Remarks from Employee;
+Create View v7 as Select EmployeeId,Name,Position,Concat('$',Format(Salary,2)) as Salary, Remarks from Employee;
 Query OK, 0 rows affected (0.05 sec)
 
 MariaDB [mytestdb]> Select * from v7;
@@ -337,7 +337,7 @@ MariaDB [mytestdb]> Select * from v8;
 +------------+--------------------------+------------+---------+---------+
 7 rows in set (0.00 sec)
 
- Create View v9 as  Select Concat (Name,' is ',Position,' and earns $',salary ,'/month') Details from Employee;
+ Create View v9 as  Select Concat (Name,' is ',Position,' and earns $',Format(salary,2) ,'/month') Details from Employee;
 Query OK, 0 rows affected (0.02 sec)
 
 MariaDB [mytestdb]> Select * from v9;
