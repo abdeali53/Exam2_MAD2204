@@ -161,13 +161,13 @@ left join Client rep on rep.AccountNumber=p.Recipient
 where p.Contents ='Undeclared';
 
 Q7) Display those employees details containing salary format as $2,700.00
-Ans)Select EmployeeId,Name,Position,Format(Salary,0) as Salary, Remarks from Employee;
+Ans)Select EmployeeId,Name,Position,Concat('$',Format(Salary,2)) as Salary, Remarks from Employee;
 
 Q8) Write query to Add remarks of those employee which are never remarked before.
 Ans)Select * from Employee where Remarks is Null;
 
 Q9) Display employee details in following format "Phillip J. Fry is Delivery boy and earns $7,500.00/month"
-Ans)Select Concat (Name,' is ',Position,' and earns $',salary ,'/month') Details from Employee;
+Ans)Select Concat (Name,' is ',Position,' and earns $',Format(Salary,2) ,'/month') Details from Employee;
 
 Q10) Update shipment date to current date for all data having NULL value
 Ans)Update Shipment set ShipmentDate=Current_Date() where ShipmentDate is NULL;
